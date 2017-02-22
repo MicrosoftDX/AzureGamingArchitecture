@@ -1,0 +1,43 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MasterServerVmSku": {
+      "value": "Standard_A1"
+    },
+    "GameServerVmSku": {
+      "value": "Standard_A1"
+    },
+    "ubuntuOSVersion": {
+      "value": "16.04.0-LTS"
+    },
+    "CommonName": {
+      "value": "MULTIPLAYER"
+    },
+    "MasterVmssName": {
+      "value": "MASTER-VMSS"
+    },
+    "GameVmssName": {
+      "value": "GAME-VMSS"
+    },
+    "MasterInstanceCount": {
+      "value": 5
+    },
+    "GameInstanceCount": {
+      "value": 5
+    },
+    "MasterAdminUsername": {
+      "value": "masterubuntu"
+    },
+    "MasterAdminPassword": {
+      "value": "M@ster2017"
+    },
+    "GameAdminUsername": {
+      "value": "gameubuntu"
+    },
+    "GameAdminPassword": {
+      "value": "G@me2017"
+    }
+  }
+}
+

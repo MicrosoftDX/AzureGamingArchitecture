@@ -1,0 +1,463 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MasterServerVmSku": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of VMs in the Master VM Scale Set."
+      }
+    },
+    "GameServerVmSku": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of VMs in the Game VM Scale Set."
+      }
+    },
+    "ubuntuOSVersion": {
+      "type": "string",
+      "defaultValue": "16.04.0-LTS",
+      "allowedValues": [
+        "14.04.4-LTS",
+        "16.04.0-LTS"
+      ],
+      "metadata": {
+        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version. Allowed values are: 14.04.4-LTS, 16.04.0-LTS."
+      }
+    },
+    "CommonName": {
+      "type": "string",
+      "metadata": {
+        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
+      },
+      "maxLength": 61
+    },
+    "MasterVmssName": {
+      "type": "string",
+      "metadata": {
+        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
+      },
+      "maxLength": 61
+    },
+    "GameVmssName": {
+      "type": "string",
+      "metadata": {
+        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
+      },
+      "maxLength": 61
+    },
+    "MasterInstanceCount": {
+      "type": "int",
+      "metadata": {
+        "description": "Number of VM instances in the Mastaer VMSS (100 or less)."
+      },
+      "maxValue": 100
+    },
+    "GameInstanceCount": {
+      "type": "int",
+      "metadata": {
+        "description": "Number of VM instances in the Game VMSS (100 or less)."
+      },
+      "maxValue": 100
+    },
+    "MasterAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username on all VMs in Master VMSS."
+      }
+    },
+    "MasterAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password on all VMs in Master VMSS."
+      }
+    },
+    "GameAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username on all VMs in Game VMSS."
+      }
+    },
+    "GameAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password on all VMs in Game VMSS."
+      }
+    }
+  },
+  "variables": {
+    "CommonNamingInfix": "[toLower(substring(concat(parameters('CommonName'), uniqueString(resourceGroup().id)), 0, 9))]",
+    "MasterNamingInfix": "[toLower(substring(concat(parameters('MasterVmssName'), uniqueString(resourceGroup().id)), 0, 9))]",
+    "GameNamingInfix": "[toLower(substring(concat(parameters('GameVmssName'), uniqueString(resourceGroup().id)), 0, 9))]",
+    "MasterLongNamingInfix": "[toLower(parameters('MasterVmssName'))]",
+    "GameLongNamingInfix": "[toLower(parameters('GameVmssName'))]",
+    "addressPrefix": "10.0.0.0/16",
+    "MasterSubnetPrefix": "10.0.1.0/24",
+    "GameSubnetPrefix": "10.0.0.0/24",
+    "virtualNetworkName": "[concat(variables('CommonNamingInfix'), 'vnet')]",
+    "MasterPublicIPAddressName": "[concat(variables('MasterNamingInfix'), 'pip')]",
+    "GamePublicIPAddressName": "[concat(variables('GameNamingInfix'), 'pip')]",
+    "MasterSubnetName": "[concat(variables('MasterNamingInfix'), 'subnet')]",
+    "GameSubnetName": "[concat(variables('GameNamingInfix'), 'subnet')]",
+    "MasterLoadBalancerName": "[concat(variables('MasterNamingInfix'), 'lb')]",
+    "GameLoadBalancerName": "[concat(variables('GameNamingInfix'), 'lb')]",
+    "MasterPublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('MasterPublicIPAddressName'))]",
+    "GamePublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('GamePublicIPAddressName'))]",
+    "MasterlbID": "[resourceId('Microsoft.Network/loadBalancers',variables('MasterLoadBalancerName'))]",
+    "GamelbID": "[resourceId('Microsoft.Network/loadBalancers',variables('GameLoadBalancerName'))]",
+    "MasterLBHttpRule": "[concat(variables('MasterNamingInfix'), 'lbhttprule')]",
+    "masterHttpProbeName": "[concat(variables('MasterNamingInfix'), 'httpprobe')]",
+    "MasterNatSSHPoolName": "[concat(variables('MasterNamingInfix'), 'natsshpool')]",
+    "MasterBePoolName": "[concat(variables('MasterNamingInfix'), 'bepool')]",
+    "MasterNatSSHStartPort": 50120,
+    "MasterNatSSHEndPort": 50239,
+    "MasterNatSSHBackendPort": 22,
+    "MasterHttpFrontendPort": 80,
+    "MasterHttpBackendPort": 80,
+    "GameNatPoolName": "[concat(variables('GameNamingInfix'), 'natpool')]",
+    "GameNatSSHPoolName": "[concat(variables('GameNamingInfix'), 'natsshpool')]",
+    "GameBePoolName": "[concat(variables('GameNamingInfix'), 'bepool')]",
+    "GameNatStartPort": 50000,
+    "GameNatEndPort": 50119,
+    "GameNatBackendPort": 80,
+    "GameNatSSHStartPort": 50120,
+    "GameNatSSHEndPort": 50239,
+    "GameNatSSHBackendPort": 22,
+    "MasterNicName": "[concat(variables('MasterNamingInfix'), 'nic')]",
+    "GameNicName": "[concat(variables('GameNamingInfix'), 'nic')]",
+    "MasterIpConfigName": "[concat(variables('MasterNamingInfix'), 'ipconfig')]",
+    "GameIpConfigName": "[concat(variables('GameNamingInfix'), 'ipconfig')]",
+    "MasterfrontEndIPConfigID": "[concat(variables('MasterlbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "GamefrontEndIPConfigID": "[concat(variables('GamelbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "osType": {
+      "publisher": "Canonical",
+      "offer": "UbuntuServer",
+      "sku": "[parameters('ubuntuOSVersion')]",
+      "version": "latest"
+    },
+    "imageReference": "[variables('osType')]",
+    "computeApiVersion": "2016-04-30-preview",
+    "networkApiVersion": "2016-03-30",
+    "storageApiVersion": "2015-06-15"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('GameSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('GameSubnetPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('MasterSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('MasterSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('GamePublicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('GameLongNamingInfix')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('MasterPublicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('MasterLongNamingInfix')]"
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('GameLoadBalancerName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('GamePublicIPAddressName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('GamePublicIPAddressID')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('GameBePoolName')]"
+          }
+        ],
+        "inboundNatPools": [
+          {
+            "name": "[variables('GameNatPoolName')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('GamefrontEndIPConfigID')]"
+              },
+              "protocol": "tcp",
+              "frontendPortRangeStart": "[variables('GameNatStartPort')]",
+              "frontendPortRangeEnd": "[variables('GameNatEndPort')]",
+              "backendPort": "[variables('GameNatBackendPort')]"
+            }
+          },
+          {
+            "name": "[variables('GameNatSSHPoolName')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('GamefrontEndIPConfigID')]"
+              },
+              "protocol": "tcp",
+              "frontendPortRangeStart": "[variables('GameNatSSHStartPort')]",
+              "frontendPortRangeEnd": "[variables('GameNatSSHEndPort')]",
+              "backendPort": "[variables('GameNatSSHBackendPort')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('MasterLoadBalancerName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('MasterPublicIPAddressName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('MasterPublicIPAddressID')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('MasterBePoolName')]"
+          }
+        ],
+        "inboundNatPools": [
+          {
+            "name": "[variables('MasterNatSSHPoolName')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('MasterfrontEndIPConfigID')]"
+              },
+              "protocol": "tcp",
+              "frontendPortRangeStart": "[variables('MasterNatSSHStartPort')]",
+              "frontendPortRangeEnd": "[variables('MasterNatSSHEndPort')]",
+              "backendPort": "[variables('MasterNatSSHBackendPort')]"
+            }
+          }
+        ],
+        "loadBalancingRules":  [
+          {
+            "name": "[variables('MasterLBHttpRule')]",
+            "properties": {
+              "backendAddressPool": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/backendAddressPools/', variables('MasterBePoolName'))]"
+              },
+              "backendPort": "[variables('MasterHttpBackendPort')]",
+              "enableFloatingIP": false,
+              "frontendIPConfiguration": {
+                "id": "[variables('MasterfrontEndIPConfigID')]"
+              },
+              "frontendPort": "[variables('MasterHttpFrontendPort')]",
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/probes/', variables('masterHttpProbeName'))]"
+
+              },
+              "protocol": "Tcp"
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "[variables('masterHttpProbeName')]",
+            "properties": {
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2,
+              "port": "[variables('MasterHttpBackendPort')]",
+              "protocol": "Tcp"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "[variables('GameNamingInfix')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', variables('GameLoadBalancerName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "sku": {
+        "name": "[parameters('GameServerVmSku')]",
+        "tier": "Standard",
+        "capacity": "[parameters('GameInstanceCount')]"
+      },
+      "properties": {
+        "overprovision": "true",
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "createOption": "FromImage"
+            },
+            "imageReference": "[variables('imageReference')]"
+          },
+          "osProfile": {
+            "computerNamePrefix": "[variables('GameNamingInfix')]",
+            "adminUsername": "[parameters('GameAdminUsername')]",
+            "adminPassword": "[parameters('GameAdminPassword')]"
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[variables('GameNicName')]",
+                "properties": {
+                  "primary": "true",
+                  "ipConfigurations": [
+                    {
+                      "name": "[variables('GameIpConfigName')]",
+                      "properties": {
+                        "subnet": {
+                          "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('GameSubnetName'))]"
+                        },
+                        "loadBalancerBackendAddressPools": [
+                          {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('GameLoadBalancerName'), '/backendAddressPools/', variables('GameBePoolName'))]"
+                          }
+                        ],
+                        "loadBalancerInboundNatPools": [
+                          {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('GameLoadBalancerName'), '/inboundNatPools/', variables('GameNatPoolName'))]"
+                          },
+                          {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('GameLoadBalancerName'), '/inboundNatPools/', variables('GameNatSSHPoolName'))]"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "[variables('MasterNamingInfix')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "sku": {
+        "name": "[parameters('MasterServerVmSku')]",
+        "tier": "Standard",
+        "capacity": "[parameters('MasterInstanceCount')]"
+      },
+      "properties": {
+        "overprovision": "true",
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "osDisk": {
+              "createOption": "FromImage"
+            },
+            "imageReference": "[variables('imageReference')]"
+          },
+          "osProfile": {
+            "computerNamePrefix": "[variables('MasterNamingInfix')]",
+            "adminUsername": "[parameters('MasterAdminUsername')]",
+            "adminPassword": "[parameters('MasterAdminPassword')]"
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[variables('MasterNicName')]",
+                "properties": {
+                  "primary": "true",
+                  "ipConfigurations": [
+                    {
+                      "name": "[variables('MasterIpConfigName')]",
+                      "properties": {
+                        "subnet": {
+                          "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('MasterSubnetName'))]"
+                        },
+                        "loadBalancerBackendAddressPools": [
+                          {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/backendAddressPools/', variables('MasterBePoolName'))]"
+                          }
+                        ],
+                        "loadBalancerInboundNatPools": [
+                          {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/inboundNatPools/', variables('MasterNatSSHPoolName'))]"
+                          }
+                        ],
+                        "loadBalancerRules": [
+                          {
+                            "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/loadBalancingRules/', variables('MasterLBHttpRule'))]"
+                          }
+                        ]
+                        
+                      
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+
