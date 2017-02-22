@@ -1,1 +1,1 @@
-# AzureGamingArchitecture
+# Azure Gaming Architecture
