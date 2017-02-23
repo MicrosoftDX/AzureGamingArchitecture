@@ -1,0 +1,344 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "HDIclusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the HDInsight cluster to create."
+      }
+    },
+    "HDIclusterLoginUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "These credentials can be used to submit jobs to the cluster and to log into cluster dashboards."
+      }
+    },
+    "HDIclusterLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+      }
+    },
+    "HDIsshUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "These credentials can be used to remotely access the cluster."
+      }
+    },
+    "HDIsshPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+      }
+    },
+    "HDIworkerNodeSize": {
+      "type": "string",
+      "defaultValue": "Standard_D3",
+      "allowedValues": [
+        "Standard_D3"
+      ]
+    },
+    "HDIheadNodeSize": {
+      "type": "string",
+      "defaultValue": "Standard_D3",
+      "allowedValues": [
+        "Standard_D3"
+      ]
+    },
+    "HDIzookeeperNodeSize": {
+      "type": "string",
+      "defaultValue": "Small",
+      "allowedValues": [
+        "Small"
+      ]
+    },
+    "HDIclusterVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "The  HDInsight cluster version."
+      }
+    },
+    "HDIclusterKind": {
+      "type": "string",
+      "metadata": {
+        "description": "The  HDInsight cluster kind."
+      }
+    },
+    "AnalyticsStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "SqlAdminLogin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "SqlAdminLoginPassword": {
+      "type": "securestring"
+    },
+    "SqlDatabaseName": {
+      "type": "string"
+    },
+    "SqlEdition": {
+      "type": "string"
+    },
+    "SqlCollation": {
+      "type": "string"
+    },
+    "SqlMaxSizeBytes": {
+      "type": "string"
+    },
+    "SqlRequestedServiceObjectiveId": {
+      "type": "string"
+    },
+    "EHnamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the EventHub namespace"
+      }
+    },
+    "EventHubName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Event Hub"
+      }
+    },
+    "EHconsumerGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Consumer Group"
+      }
+    }
+
+
+  },
+  "variables": {
+    "defaultStorageAccount": {
+      "name": "[uniqueString(resourceGroup().id)]",
+      "type": "Standard_LRS"
+    },
+    "AnalyticsStorageName": "[substring(concat('analyticsstorage', uniqueString(resourceGroup().id)),0,23)]",
+    "SqlServerAnalyticsName": "[concat('sqlserveranalytics', uniqueString(resourceGroup().id))]",
+    "EHdefaultSASKeyName": "RootManageSharedAccessKey",
+    "EHauthRuleResourceId": "[resourceId('Microsoft.EventHub/namespaces/authorizationRules', parameters('EHnamespaceName'), variables('EHdefaultSASKeyName'))]",
+    "EHapiVersion": "2015-08-01"
+
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('defaultStorageAccount').name]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[variables('defaultStorageAccount').type]"
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+    {
+      "name": "[parameters('HDIclusterName')]",
+      "type": "Microsoft.HDInsight/clusters",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-03-01-preview",
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/',variables('defaultStorageAccount').name)]"
+      ],
+      "tags": {},
+      "properties": {
+        "clusterVersion": "[parameters('HDIclusterVersion')]",
+        "osType": "Linux",
+        "clusterDefinition": {
+          "kind": "[parameters('HDIclusterKind')]",
+          "configurations": {
+            "gateway": {
+              "restAuthCredential.isEnabled": true,
+              "restAuthCredential.username": "[parameters('HDIclusterLoginUserName')]",
+              "restAuthCredential.password": "[parameters('HDIclusterLoginPassword')]"
+            }
+          }
+        },
+        "storageProfile": {
+          "storageaccounts": [
+            {
+              "name": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('defaultStorageAccount').name), '2016-01-01').primaryEndpoints.blob,'https://',''),'/','')]",
+              "isDefault": true,
+              "container": "[parameters('HDIclusterName')]",
+              "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('defaultStorageAccount').name), '2016-01-01').keys[0].value]"
+            }
+          ]
+        },
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "headnode",
+              "targetInstanceCount": "2",
+              "hardwareProfile": {
+                "vmSize": "[parameters('HDIheadNodeSize')]"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('HDIsshUserName')]",
+                  "password": "[parameters('HDIsshPassword')]"
+                }
+              }
+            },
+            {
+              "name": "workernode",
+              "targetInstanceCount": 2,
+              "hardwareProfile": {
+                "vmSize": "[parameters('HDIworkerNodeSize')]"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('HDIsshUserName')]",
+                  "password": "[parameters('HDIsshPassword')]"
+                }
+              }
+            },
+            {
+              "name": "zookeepernode",
+              "targetInstanceCount": "3",
+              "hardwareProfile": {
+                "vmSize": "[parameters('HDIzookeeperNodeSize')]"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('HDIsshUserName')]",
+                  "password": "[parameters('HDIsshPassword')]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[variables('AnalyticsStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "AnalyticsStorage"
+      },
+      "properties": {
+        "accountType": "[parameters('AnalyticsStorageType')]"
+      }
+    },
+    {
+      "name": "[variables('SqlServerAnalyticsName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "sqlserveranalytics"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('SqlAdminLogin')]",
+        "administratorLoginPassword": "[parameters('SqlAdminLoginPassword')]"
+      },
+      "resources": [
+        {
+          "name": "[parameters('SqlDatabaseName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('SqlServerAnalyticsName'))]"
+          ],
+          "properties": {
+            "edition": "[parameters('SqlEdition')]",
+            "collation": "[parameters('SqlCollation')]",
+            "maxSizeBytes": "[parameters('SqlMaxSizeBytes')]",
+            "requestedServiceObjectiveId": "[parameters('SqlRequestedServiceObjectiveId')]"
+          }
+        },
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "type": "firewallrules",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('SqlServerAnalyticsName'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('EHnamespaceName')]",
+      "type": "Microsoft.EventHub/namespaces",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[parameters('eventHubName')]",
+          "type": "eventhubs",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.EventHub/namespaces/', parameters('EHnamespaceName'))]"
+          ],
+          "properties": {
+            "path": "[parameters('eventHubName')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[parameters('EHconsumerGroupName')]",
+              "type": "consumergroups",
+              "location": "[resourceGroup().location]",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "properties": {
+
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+  ],
+  "outputs": {
+    "HDIcluster": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.HDInsight/clusters',parameters('HDIclusterName')))]"
+    },
+    "SQLServer": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Sql/servers',variables('SqlServerAnalyticsName')))]"
+    },
+    "AnalyticsStorage": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts',variables('defaultStorageAccount').name))]"
+    },
+    "EventHubNamespaceConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('EHauthRuleResourceId'), variables('EHapiVersion')).primaryConnectionString]"
+    },
+    "EventHubSharedAccessPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[listkeys(variables('EHauthRuleResourceId'), variables('EHapiVersion')).primaryKey]"
+    }
+
+
+  }
+}

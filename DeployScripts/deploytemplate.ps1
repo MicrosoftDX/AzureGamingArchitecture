@@ -3,7 +3,7 @@ Login-AzureRmAccount
 $SubscriptionID = "<YOUR SUBSCRIPTION ID>"
 Select-AzureRmSubscription -SubscriptionId $SubscriptionID
 
-$RGName = "MultiplayerRG"
+$RGName = "<YOUR Resource Group Name>"
 $location = "westeurope"
 $templatefile = "azuredeploy.json"
 $templateparameters = "azuredeploy.parameters.json"

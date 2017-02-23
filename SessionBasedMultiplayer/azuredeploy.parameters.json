@@ -30,13 +30,13 @@
       "value": "masterubuntu"
     },
     "MasterAdminPassword": {
-      "value": "M@ster2017"
+      "value": null
     },
     "GameAdminUsername": {
       "value": "gameubuntu"
     },
     "GameAdminPassword": {
-      "value": "G@me2017"
+      "value": null
     }
   }
 }

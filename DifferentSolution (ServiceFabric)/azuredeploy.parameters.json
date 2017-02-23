@@ -15,7 +15,7 @@
             "value": "sfuser"
         },
         "adminPassword": {
-            "value": "ServicefabricPass2020"
+            "value": null
         },
         "nicName": {
             "value": "NIC-sfcluster"

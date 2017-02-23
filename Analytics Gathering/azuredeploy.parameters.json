@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "HDIclusterName": {
+      "value": "hdicluster"
+    },
+    "HDIclusterLoginUserName": {
+      "value": "hdiuser"
+    },
+    "HDIclusterLoginPassword": {
+      "value": null
+
+    },
+    "HDIsshUserName": {
+      "value": "hdiuser"
+    },
+    "HDIsshPassword": {
+      "value": null
+    },
+    "HDIworkerNodeSize": {
+      "value": "Standard_D3"
+    },
+    "HDIheadNodeSize": {
+      "value": "Standard_D3"
+    },
+    "HDIzookeeperNodeSize": {
+      "value": "Small"
+    },
+    "HDIclusterVersion": {
+      "value": "3.5"
+    },
+    "HDIclusterKind": {
+      "value": "hadoop"
+    },
+    "AnalyticsStorageType": {
+      "value": "Standard_LRS"
+    },
+    "SqlAdminLogin": {
+      "value": "sqladmin"
+    },
+    "SqlAdminLoginPassword": {
+      "value": null
+    },
+    "SqlDatabaseName": {
+      "value": "analyticsdb"
+    },
+    "SqlEdition": {
+      "value": "Standard"
+    },
+    "SqlCollation": {
+      "value": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "SqlMaxSizeBytes": {
+      "value": "268435456000"
+    },
+    "SqlRequestedServiceObjectiveId": {
+      "value": "f1173c43-91bd-4aaa-973c-54e79e15235b"
+    },
+    "EHnamespaceName": {
+      "value": "gatheranalyticsnamespace"
+    },
+    "EventHubName": {
+      "value": "gatheranalyticseh"
+    },
+    "EHconsumerGroupName": {
+      "value": "group1"
+    }
+
+
+  }
+}
