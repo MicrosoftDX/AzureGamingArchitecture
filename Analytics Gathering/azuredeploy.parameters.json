@@ -66,8 +66,17 @@
     },
     "EHconsumerGroupName": {
       "value": "group1"
+    },
+    "ASAJobName": {
+      "value": "asajob"
+
+    },
+    "ASANumberOfStreamingUnits": {
+      "value": 1
+
+    },
+    "PowerbiName": {
+      "value": "analyticsGatheringPowerBI"
     }
-
-
   }
 }

@@ -115,9 +115,38 @@
       "metadata": {
         "description": "Name of the Consumer Group"
       }
+    },
+    "ASAJobName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 63,
+      "metadata": {
+        "description": "Stream Analytics Job Name, can contain alphanumeric characters and hypen and must be 3-63 characters long"
+      }
+    },
+    "ASANumberOfStreamingUnits": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 48,
+      "allowedValues": [
+        1,
+        3,
+        6,
+        12,
+        18,
+        24,
+        30,
+        36,
+        42,
+        48
+      ],
+      "metadata": {
+        "description": "Number of Streaming Units"
+      }
+    },
+    "PowerbiName": {
+      "type": "string"
     }
-
-
   },
   "variables": {
     "defaultStorageAccount": {
@@ -314,8 +343,42 @@
           ]
         }
       ]
+    },
+    {
+      "type": "Microsoft.StreamAnalytics/StreamingJobs",
+      "apiVersion": "2016-03-01",
+      "name": "[parameters('ASAJobName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "name": "standard"
+        },
+        "outputErrorPolicy": "stop",
+        "eventsOutOfOrderPolicy": "adjust",
+        "eventsOutOfOrderMaxDelayInSeconds": 0,
+        "eventsLateArrivalMaxDelayInSeconds": 5,
+        "dataLocale": "en-US",
+        "inputs": [],
+        "transformation": {
+          "name": "Transformation",
+          "properties": {
+            "streamingUnits": "[parameters('ASANumberOfStreamingUnits')]",
+            "query": "SELECT\r\n    *\r\nINTO\r\n    [YourOutputAlias]\r\nFROM\r\n    [YourInputAlias]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-01-29",
+      "name": "[parameters('PowerbiName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "sku": {
+        "name": "S1",
+        "tier": "Standard"
+      },
+      "type": "Microsoft.PowerBI/workspaceCollections"
     }
-
   ],
   "outputs": {
     "HDIcluster": {
@@ -337,8 +400,15 @@
     "EventHubSharedAccessPolicyPrimaryKey": {
       "type": "string",
       "value": "[listkeys(variables('EHauthRuleResourceId'), variables('EHapiVersion')).primaryKey]"
+    },
+    "StreamAnalyticsJob": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.StreamAnalytics/StreamingJobs',parameters('ASAJobName')))]"
+    },
+    "PowerBI": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.PowerBI/workspaceCollections',parameters('PowerbiName')))]"
+
     }
-
-
   }
 }
