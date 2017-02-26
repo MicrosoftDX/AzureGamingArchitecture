@@ -13,3 +13,9 @@ In this repository you will find ARM templates to deploy some common Game Servic
 * Architecture 4 - Analytics Gathering
 
 ## How to deploy?
+
+* Deploy from Portal
+* Deploy from Power Shell
+* Deploy from CLI
+[Deploy resources with Resource Manager templates and Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli)
+* Deploy from REST
