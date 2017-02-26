@@ -9,7 +9,7 @@ In this repository you will find ARM templates to deploy some common Game Servic
 
 * Architecture 1 - Simple Game Service
 * Architecture 2 - Different Solution (Service Fabric)
-* Architecture 3 - Session Based Multiplayer
+* [Architecture 3 - Session Based Multiplayer](SessionBasedMultiplayer/README.md)
 * Architecture 4 - Analytics Gathering
 
 ## How to deploy?
