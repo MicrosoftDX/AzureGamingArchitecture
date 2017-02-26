@@ -15,7 +15,10 @@ In this repository you will find ARM templates to deploy some common Game Servic
 ## How to deploy?
 
 * Deploy from Portal
+[Deploy resources with Resource Manager templates and Azure portal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-portal)
 * Deploy from Power Shell
+[Deploy resources with Resource Manager templates and Azure PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy)
 * Deploy from CLI
 [Deploy resources with Resource Manager templates and Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli)
 * Deploy from REST
+[Deploy resources with Resource Manager templates and Resource Manager REST API](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-rest)
