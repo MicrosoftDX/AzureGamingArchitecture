@@ -1,0 +1,16 @@
+# Log in to your Azure account. After providing your credentials, the command returns the result of your login.
+azure login
+
+# If you have multiple subscriptions, provide the subscription ID you wish to use for deployment
+azure account set <YourSubscriptionNameOrId>
+
+# Create a new Resource Group
+azure group create -n <Name your Resource Group> -l "West Europe"
+
+# Deploy the template with parameters file
+azure group deployment create -g <Name your Resource Group>  -f "<Path to your template>" -e "<path to your parameters file" 
+
+
+
+
+
