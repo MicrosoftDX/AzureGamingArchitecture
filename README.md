@@ -8,7 +8,7 @@ To leran more about Azure Resource Manager Templates see: [Azure Resource Manage
 In this repository you will find ARM templates to deploy some common Game Services in Azure.
 
 * [Architecture 1 - Simple Game Service](SimpleGameService/README.md)
-* [Architecture 2 - Different Solution (Service Fabric)](Different Solution (ServiceFabric)/README.md))
+* [Architecture 2 - Different Solution (Service Fabric)](DifferentSolution-ServiceFabric/README.md)
 * [Architecture 3 - Session Based Multiplayer](SessionBasedMultiplayer/README.md)
 * [Architecture 4 - Analytics Gathering](Analytics Gathering/README.md)
 
