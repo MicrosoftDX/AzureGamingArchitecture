@@ -19,22 +19,25 @@ There are a few ways you can deploy an ARM template. You are free to choose the 
 * Deploy from Portal
 
   Each template in this repository include the "Deploy to Azure" button. Use this button to deploy the template from Azure portal.
-For full details about deploying from Azure portal see:
-[Deploy resources with Resource Manager templates and Azure portal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-portal)
+
+  For full details about deploying from Azure portal see:
+  [Deploy resources with Resource Manager templates and Azure portal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-portal)
 
 * Deploy from Power Shell
 
   Go to DeployScripts/deploytemplate.ps1 in this repository. Edit the scripts with your subscription ID, desired Resource Group name, desired location and the path to template and parameters files and run the script from Power Shell.
-For full details about deploying from CLI:
-[Deploy resources with Resource Manager templates and Azure PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy)
+
+  For full details about deploying from CLI:
+  [Deploy resources with Resource Manager templates and Azure PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy)
 
 * Deploy from CLI
 
   Go to DeployScripts/cli_deploy.txt in this repository. You will find in the a list of commands to run from CLI to deploy. 
-For full details about deploying from Power Shell see:
-[Deploy resources with Resource Manager templates and Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli)
+
+  For full details about deploying from Power Shell see:
+  [Deploy resources with Resource Manager templates and Azure CLI](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli)
 
 * Deploy from REST
 
   For full details about deploying from REST API see:
-[Deploy resources with Resource Manager templates and Resource Manager REST API](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-rest)
+  [Deploy resources with Resource Manager templates and Resource Manager REST API](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-rest)
