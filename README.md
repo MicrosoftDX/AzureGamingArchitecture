@@ -41,3 +41,7 @@ There are a few ways you can deploy an ARM template. You are free to choose the 
 
   For full details about deploying from REST API see:
   [Deploy resources with Resource Manager templates and Resource Manager REST API](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-rest)
+
+## Want to know more?
+
+All information about Azure can be found at [azure.com](http://azure.com) where you also will be able to sign up for a free trial. If you want to consume information in the form of videos, you can find a good video series at [Channel9](https://channel9.msdn.com/Series/Gaming-Services-on-Azure) that explains all of the above mentioned architectures.
