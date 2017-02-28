@@ -233,6 +233,7 @@
         "name": "Standard",
         "tier": "Standard"
       },
+      "properties": {},
       "resources": [
         {
           "tags": {
