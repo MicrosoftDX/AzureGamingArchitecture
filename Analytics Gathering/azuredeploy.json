@@ -47,7 +47,7 @@
       "ServerName": "[take( concat(variables('Prefix'),'sqlzzz', uniqueString(resourceGroup().id)) , 23)]",
       "Username": "sqluser",
       "Password": "[parameters('Password')]",
-      "DatabaseName": "[take( concat(variables('Prefix'),'sqldbzzz') , 23)]"
+      "DatabaseName": "[take( concat(variables('Prefix'),'sqldbgameanalytics') , 23)]"
     },
 
     "EventHub": {
