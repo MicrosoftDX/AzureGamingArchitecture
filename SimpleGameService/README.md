@@ -10,4 +10,4 @@ The ARM template to deploy this architecture in Azure includes the following com
 * SQL Server with one SQL DB
 
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdx-ted-emea%2FAzureGamingArchitecture%2Fmaster%2FSimpleGameService%2Fazuredeploy.json" target="_blank">    <img src="http://azuredeploy.net/deploybutton.png"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoftDX%2FAzureGamingArchitecture%2Fmaster%2FSimpleGameService%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>

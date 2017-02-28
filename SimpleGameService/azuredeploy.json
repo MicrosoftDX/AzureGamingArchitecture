@@ -4,7 +4,8 @@
   "parameters": {
     "WebSiteName": {
       "type": "string",
-      "metadata": {"description": "Specify the prefix of the web site to deploy to"}
+      "metadata": {"description": "Specify the prefix of the web site to deploy to.  Must be 3-60 characters in length and globally unique across Azure."},
+      "maxLength": 60
     },
     "adminUsername":{
       "type": "string",
