@@ -40,9 +40,6 @@
     "hostingPlanName": {
       "type": "string"
     },
-    "hostingEnvironment": {
-      "type": "string"
-    },
     "hostingPlanSku": {
       "type": "string",
       "defaultValue": "Standard"
@@ -65,14 +62,13 @@
             "connectionStrings": [
               {
                 "name": "defaultConnection",
-                "ConnectionString": "[concat('Data Source=tcp:' , reference(concat('Microsoft.SQL/servers/',parameters('SqlServerName'))).fullyQualifiedDomainName , ',1433;Initial Catalog=GameServiceDB;User Id=gameservice@',reference(concat('Microsoft.SQL/servers/',parameters('SqlServerName'))).fullyQualifiedDomainName,';Password=',parameters('SqlAdministratorLoginPassword'),';')]",
+                "ConnectionString": "[concat('Data Source=tcp:' , reference(concat('Microsoft.SQL/servers/',toLower(parameters('SqlServerName')))).fullyQualifiedDomainName , ',1433;Initial Catalog=GameServiceDB;User Id=gameservice@',reference(concat('Microsoft.SQL/servers/',toLower(parameters('SqlServerName')))).fullyQualifiedDomainName,';Password=',parameters('SqlAdministratorLoginPassword'),';')]",
                 "type": "SQLAzure"
               }
             ]
           },
           "name": "[parameters('WebSiteName')]",
-          "serverFarmId": [ "concat('Microsoft.Web/serverfarms/'", "parameters('hostingPlanName'))" ],
-          "hostingEnvironment": "[parameters('hostingEnvironment')]"
+          "serverFarmId": [ "concat('Microsoft.Web/serverfarms/'", "parameters('hostingPlanName'))" ]
         },
         "apiVersion": "2016-03-01",
         "location": "[resourceGroup().location]",
@@ -115,7 +111,7 @@
           }
         },
       {
-        "name": "[parameters('SqlServerName')]",
+        "name": "[toLower(parameters('SqlServerName'))]",
         "type": "Microsoft.Sql/servers",
         "location": "[resourceGroup().location]",
         "apiVersion": "2014-04-01-preview",
@@ -131,7 +127,7 @@
             "location": "[resourceGroup().location]",
             "apiVersion": "2014-04-01-preview",
             "dependsOn": [
-              "[concat('Microsoft.Sql/servers/', parameters('SqlServerName'))]"
+              "[concat('Microsoft.Sql/servers/', toLower(parameters('SqlServerName')))]"
             ],
             "properties": {
               "edition": "[parameters('Sqledition')]",
@@ -143,7 +139,7 @@
           {
             "apiVersion": "2014-04-01-preview",
             "dependsOn": [
-              "[concat('Microsoft.Sql/servers/', parameters('SqlServerName'))]"
+              "[concat('Microsoft.Sql/servers/', toLower(parameters('SqlServerName')))]"
             ],
             "location": "[resourceGroup().location]",
             "name": "AllowAllWindowsAzureIps",
