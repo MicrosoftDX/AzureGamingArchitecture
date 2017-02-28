@@ -14,7 +14,7 @@
       "metadata": {
         "description": "Number of VM instances in the Master VMSS (100 or less)."
       },
-      "defaultValue": "2",
+      "defaultValue": 2,
       "maxValue": 100
     },
     "GameInstanceCount": {
@@ -22,7 +22,7 @@
       "metadata": {
         "description": "Number of VM instances in the Game VMSS (100 or less)."
       },
-      "defaultValue": "2",
+      "defaultValue": 2,
       "maxValue": 100
     },
     "AdminUsername": {
