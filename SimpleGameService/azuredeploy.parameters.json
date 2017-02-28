@@ -1,63 +1,55 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {
-        "serverName": {
-            "value": "gameservicesqlserver"
-        },
-        "administratorLogin": {
-            "value": "gameservice"
-        },
-      "administratorLoginPassword": {
-        "value": "MyP@s52020!!!"
-      },
-        "databaseUsername": {
-            "value": "gameservice"
-        },
-        "databasePassword": {
-            "value": "MyP@s52020!!!"
-        },
-        "databaseName": {
-            "value": "GameServiceDB"
-        },
-        "edition": {
-            "value": "Standard"
-        },
-        "collation": {
-            "value": "SQL_Latin1_General_CP1_CI_AS"
-        },
-        "maxSizeBytes": {
-            "value": "268435456000"
-        },
-        "requestedServiceObjectiveId": {
-            "value": "f1173c43-91bd-4aaa-973c-54e79e15235b"
-        },
-        "serverLocation": {
-            "value": "westeurope"
-        },
-        "name": {
-            "value": "gameservicegdc"
-        },
-        "hostingPlanName": {
-            "value": "GameServicePlan"
-        },
-        "hostingEnvironment": {
-            "value": ""
-        },
-        "location": {
-            "value": "West Europe"
-        },
-        "sku": {
-            "value": "Standard"
-        },
-        "workerSize": {
-            "value": "0"
-        },
-        "serverFarmResourceGroup": {
-            "value": "GameServiceRG"
-        },
-        "skuCode": {
-            "value": "S1"
-        }
+  "parameters": {
+    "SqlServerName": {
+      "value": "gamesrvsqlserver"
+    },
+    "SqlAdministratorLogin": {
+      "value": "gameservice"
+    },
+    "SqlAdministratorLoginPassword": {
+      "value": "MyP@s52020!!!"
+    },
+    "databaseUsername": {
+      "value": "gameservice"
+    },
+    "databasePassword": {
+      "value": "MyP@s52020!!!"
+    },
+    "databaseName": {
+      "value": "GameServiceDB"
+    },
+    "SqlEdition": {
+      "value": "Standard"
+    },
+    "SqlCollation": {
+      "value": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "DBmaxSizeBytes": {
+      "value": "268435456000"
+    },
+    "SqlRequestedServiceObjectiveId": {
+      "value": "f1173c43-91bd-4aaa-973c-54e79e15235b"
+    },
+
+    "WebSiteName": {
+      "value": "gameservicegdc"
+    },
+    "hostingPlanName": {
+      "value": "GameServicePlan"
+    },
+    "hostingEnvironment": {
+      "value": ""
+    },
+    "hostingPlanSku": {
+      "value": "Standard"
+    },
+    "hostingPlanSkuCode": {
+      "value": "S1"
+    },
+    "workerSizeID": {
+      "value": "0"
     }
+  }
 }
