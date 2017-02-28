@@ -68,7 +68,8 @@
             ]
           },
           "name": "[parameters('WebSiteName')]",
-          "serverFarmId": [ "concat('Microsoft.Web/serverfarms/'", "parameters('hostingPlanName'))" ]
+          "serverFarmId": [ "concat('Microsoft.Web/serverfarms/'", "parameters('hostingPlanName'))" ],
+          "hostingEnvironment": ""
         },
         "apiVersion": "2016-03-01",
         "location": "[resourceGroup().location]",
