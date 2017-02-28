@@ -2,57 +2,19 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "MasterServerVmSku": {
-      "type": "string",
-      "defaultValue": "Standard_A1",
-      "metadata": {
-        "description": "Size of VMs in the Master VM Scale Set."
-      }
-    },
-    "GameServerVmSku": {
-      "type": "string",
-      "defaultValue": "Standard_A1",
-      "metadata": {
-        "description": "Size of VMs in the Game VM Scale Set."
-      }
-    },
-    "ubuntuOSVersion": {
-      "type": "string",
-      "defaultValue": "16.04.0-LTS",
-      "allowedValues": [
-        "14.04.4-LTS",
-        "16.04.0-LTS"
-      ],
-      "metadata": {
-        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version. Allowed values are: 14.04.4-LTS, 16.04.0-LTS."
-      }
-    },
     "CommonName": {
       "type": "string",
       "metadata": {
-        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
+        "description": "String used as a base for naming resources. Must be 3-15 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
       },
-      "maxLength": 61
-    },
-    "MasterVmssName": {
-      "type": "string",
-      "metadata": {
-        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
-      },
-      "maxLength": 61
-    },
-    "GameVmssName": {
-      "type": "string",
-      "metadata": {
-        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
-      },
-      "maxLength": 61
+      "maxLength": 15
     },
     "MasterInstanceCount": {
       "type": "int",
       "metadata": {
-        "description": "Number of VM instances in the Mastaer VMSS (100 or less)."
+        "description": "Number of VM instances in the Master VMSS (100 or less)."
       },
+      "defaultValue": 2,
       "maxValue": 100
     },
     "GameInstanceCount": {
@@ -60,39 +22,37 @@
       "metadata": {
         "description": "Number of VM instances in the Game VMSS (100 or less)."
       },
+      "defaultValue": 2,
       "maxValue": 100
     },
-    "MasterAdminUsername": {
+    "AdminUsername": {
       "type": "string",
       "metadata": {
-        "description": "Admin username on all VMs in Master VMSS."
+        "description": "Admin username on all VMs in Master and Game VMSS."
       }
     },
-    "MasterAdminPassword": {
+    "AdminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Admin password on all VMs in Master VMSS."
-      }
-    },
-    "GameAdminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Admin username on all VMs in Game VMSS."
-      }
-    },
-    "GameAdminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Admin password on all VMs in Game VMSS."
+        "description": "Admin password on all VMs in  Master and Game VMSS."
       }
     }
   },
   "variables": {
-    "CommonNamingInfix": "[toLower(substring(concat(parameters('CommonName'), uniqueString(resourceGroup().id)), 0, 9))]",
-    "MasterNamingInfix": "[toLower(substring(concat(parameters('MasterVmssName'), uniqueString(resourceGroup().id)), 0, 9))]",
-    "GameNamingInfix": "[toLower(substring(concat(parameters('GameVmssName'), uniqueString(resourceGroup().id)), 0, 9))]",
-    "MasterLongNamingInfix": "[toLower(parameters('MasterVmssName'))]",
-    "GameLongNamingInfix": "[toLower(parameters('GameVmssName'))]",
+    "GameAdminUsername": "[parameters('AdminUsername')]",
+    "GameAdminPassword": "[parameters('AdminPassword')]",
+    "MasterAdminUsername": "[parameters('AdminUsername')]",
+    "MasterAdminPassword": "[parameters('AdminPassword')]",
+    "MasterVmssName": "[concat(parameters('CommonName'),'m')]",
+    "GameVmssName": "[concat(parameters('CommonName'),'g')]",
+    "ubuntuOSVersion": "16.04.0-LTS",
+    "MasterServerVmSku": "Standard_A1",
+    "GameServerVmSku": "Standard_A1",
+    "CommonNamingInfix": "[toLower(substring(concat(parameters('CommonName'), uniqueString(resourceGroup().id)), 0, 20))]",
+    "MasterNamingInfix": "[toLower(substring(concat(variables('MasterVmssName'), uniqueString(resourceGroup().id)), 0, 20))]",
+    "GameNamingInfix": "[toLower(substring(concat(variables('GameVmssName'), uniqueString(resourceGroup().id)), 0, 20))]",
+    "MasterLongNamingInfix": "[toLower(variables('MasterVmssName'))]",
+    "GameLongNamingInfix": "[toLower(variables('GameVmssName'))]",
     "addressPrefix": "10.0.0.0/16",
     "MasterSubnetPrefix": "10.0.1.0/24",
     "GameSubnetPrefix": "10.0.0.0/24",
@@ -134,7 +94,7 @@
     "osType": {
       "publisher": "Canonical",
       "offer": "UbuntuServer",
-      "sku": "[parameters('ubuntuOSVersion')]",
+      "sku": "[variables('ubuntuOSVersion')]",
       "version": "latest"
     },
     "imageReference": "[variables('osType')]",
@@ -194,7 +154,6 @@
         }
       }
     },
-
     {
       "type": "Microsoft.Network/loadBalancers",
       "name": "[variables('GameLoadBalancerName')]",
@@ -285,7 +244,7 @@
             }
           }
         ],
-        "loadBalancingRules":  [
+        "loadBalancingRules": [
           {
             "name": "[variables('MasterLBHttpRule')]",
             "properties": {
@@ -301,7 +260,6 @@
               "idleTimeoutInMinutes": 5,
               "probe": {
                 "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/probes/', variables('masterHttpProbeName'))]"
-
               },
               "protocol": "Tcp"
             }
@@ -330,7 +288,7 @@
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
       ],
       "sku": {
-        "name": "[parameters('GameServerVmSku')]",
+        "name": "[variables('GameServerVmSku')]",
         "tier": "Standard",
         "capacity": "[parameters('GameInstanceCount')]"
       },
@@ -348,8 +306,8 @@
           },
           "osProfile": {
             "computerNamePrefix": "[variables('GameNamingInfix')]",
-            "adminUsername": "[parameters('GameAdminUsername')]",
-            "adminPassword": "[parameters('GameAdminPassword')]"
+            "adminUsername": "[variables('GameAdminUsername')]",
+            "adminPassword": "[variables('GameAdminPassword')]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -397,7 +355,7 @@
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
       ],
       "sku": {
-        "name": "[parameters('MasterServerVmSku')]",
+        "name": "[variables('MasterServerVmSku')]",
         "tier": "Standard",
         "capacity": "[parameters('MasterInstanceCount')]"
       },
@@ -415,8 +373,8 @@
           },
           "osProfile": {
             "computerNamePrefix": "[variables('MasterNamingInfix')]",
-            "adminUsername": "[parameters('MasterAdminUsername')]",
-            "adminPassword": "[parameters('MasterAdminPassword')]"
+            "adminUsername": "[variables('MasterAdminUsername')]",
+            "adminPassword": "[variables('MasterAdminPassword')]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -446,8 +404,6 @@
                             "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('MasterLoadBalancerName'), '/loadBalancingRules/', variables('MasterLBHttpRule'))]"
                           }
                         ]
-                        
-                      
                       }
                     }
                   ]
@@ -460,4 +416,3 @@
     }
   ]
 }
-
