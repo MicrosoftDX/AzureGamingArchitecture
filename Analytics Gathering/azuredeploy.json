@@ -2,19 +2,18 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "ServicesPrefix": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Prefix to be used in front of every deployed services' name. Can only contain lowercase characters but can be empty."
-      }
-    },
-
     "Password": {
       "type": "securestring",
       "minLength": 1,
       "metadata": {
         "description": "This deployment uses the same password for all deployed services and users. The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+      }
+    },
+    "ServicesPrefix": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Prefix to be used in front of every deployed services' name. Can only contain lowercase characters but can be empty."
       }
     }
   },
