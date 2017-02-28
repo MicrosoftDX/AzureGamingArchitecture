@@ -18,18 +18,22 @@
         "databaseName": {
             "type": "string"
         },
-        "edition": {
-            "type": "string"
-        },
-        "collation": {
-            "type": "string"
-        },
-        "maxSizeBytes": {
-            "type": "string"
-        },
-        "requestedServiceObjectiveId": {
-            "type": "string"
-        },
+      "edition": {
+        "type": "string",
+        "defaultValue": "Standard"
+      },
+      "collation": {
+        "type": "string",
+        "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      "maxSizeBytes": {
+        "type": "string",
+        "defaultValue": "268435456000"
+      },
+      "requestedServiceObjectiveId": {
+        "type": "string",
+        "defaultValue":"f1173c43-91bd-4aaa-973c-54e79e15235b"
+      },
         "serverLocation": {
             "type": "string"
         },
@@ -45,19 +49,19 @@
         "location": {
             "type": "string"
         },
-        "sku": {
-            "type": "string"
-        },
-        "skuCode": {
-            "type": "string"
-        },
-        "workerSize": {
-            "type": "string"
-        },
+      "sku": {
+        "type": "string",
+        "defaultValue": "Standard"
+      },
+      "skuCode": {
+        "type": "string",
+        "defaultValue": "S1"
+      },
+      "workerSize": {
+        "type": "string",
+        "defaultValue": "0"
+      },
         "serverFarmResourceGroup": {
-            "type": "string"
-        },
-        "subscriptionId": {
             "type": "string"
         }
     },
@@ -65,25 +69,23 @@
         {
             "name": "[parameters('name')]",
             "type": "Microsoft.Web/sites",
-            "properties": {
-                "siteConfig": {
-                    "connectionStrings": [
-                        {
-                            "name": "defaultConnection",
-                            "ConnectionString": "[concat('Data Source=tcp:' , reference('Microsoft.SQL/servers/gameservicesqlserver').fullyQualifiedDomainName , ',1433;Initial Catalog=GameServiceDB;User Id=gameservice@',reference('Microsoft.SQL/servers/gameservicesqlserver').fullyQualifiedDomainName,';Password=',parameters('administratorLoginPassword'),';')]",
-                            "type": "SQLAzure"
-                        }
-                    ]
-                },
-                "name": "[parameters('name')]",
-                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
-                "hostingEnvironment": "[parameters('hostingEnvironment')]"
+          "properties": {
+            "siteConfig": {
+              "connectionStrings": [
+                {
+                  "name": "defaultConnection",
+                  "ConnectionString": "[concat('Data Source=tcp:' , reference('Microsoft.SQL/servers/gameservicesqlserver').fullyQualifiedDomainName , ',1433;Initial Catalog=GameServiceDB;User Id=gameservice@',reference('Microsoft.SQL/servers/gameservicesqlserver').fullyQualifiedDomainName,';Password=',parameters('administratorLoginPassword'),';')]",
+                  "type": "SQLAzure"
+                }
+              ]
             },
+            "name": "[parameters('name')]",
+            "serverFarmId": [ "concat('Microsoft.Web/serverfarms/'", "parameters('hostingPlanName'))" ],
+            "hostingEnvironment": "[parameters('hostingEnvironment')]"
+          },
             "apiVersion": "2016-03-01",
             "location": "[parameters('location')]",
-            "tags": {
-                "[concat('hidden-related:', '/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
-            },
+           
             "dependsOn": [
                 "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
             ]
@@ -91,7 +93,7 @@
         {
             "apiVersion": "2016-09-01",
             "name": "[parameters('hostingPlanName')]",
-            "type": "Microsoft.Web/serverfarms",
+            "type": "Microsoft.Web/ServerFarms",
             "location": "[parameters('location')]",
             "properties": {
                 "name": "[parameters('hostingPlanName')]",

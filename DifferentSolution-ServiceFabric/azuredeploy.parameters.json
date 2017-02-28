@@ -1,66 +1,66 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "clusterName": {
-            "value": "sfcluster"
-        },
-        "clusterLocation": {
-            "value": "westeurope"
-        },
-        "computeLocation": {
-            "value": "westeurope"
-        },
-        "adminUserName": {
-            "value": "sfuser"
-        },
-        "adminPassword": {
-            "value": null
-        },
-        "nicName": {
-            "value": "NIC-sfcluster"
-        },
-        "publicIPAddressName": {
-            "value": "sfcluster-PubIP"
-        },
-        "vmStorageAccountName": {
-            "value": "sfvmsfcluster4407"
-        },
-        "dnsName": {
-            "value": "sfcluster"
-        },
-        "virtualNetworkName": {
-            "value": "VNet-sfcluster"
-        },
-        "lbName": {
-            "value": "LB-sfcluster"
-        },
-        "lbIPName": {
-            "value": "LBIP-sfcluster"
-        },
-        "applicationDiagnosticsStorageAccountName": {
-            "value": "sfdgsfcluster8609"
-        },
-        "supportLogStorageAccountName": {
-            "value": "sflogssfcluster5860"
-        },
-        "NodeType0ephemeralStartPort": {
-            "value": 49152
-        },
-        "NodeType0ephemeralEndPort": {
-            "value": 65534
-        },
-        "NodeType0applicationStartPort": {
-            "value": 20000
-        },
-        "NodeType0applicationEndPort": {
-            "value": 30000
-        },
-        "NodeType0fabricTcpGatewayPort": {
-            "value": 19000
-        },
-        "NodeType0fabricHttpGatewayPort": {
-            "value": 19080
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "value": "sfcluster"
+    },
+    "clusterLocation": {
+      "value": "westeurope"
+    },
+    "computeLocation": {
+      "value": "westeurope"
+    },
+    "adminUserName": {
+      "value": "sfuser"
+    },
+    "adminPassword": {
+      "value": null
+    },
+    "nicName": {
+      "value": "NIC-sfcluster"
+    },
+    "publicIPAddressName": {
+      "value": "sfcluster-PubIP"
+    },
+    "vmStorageAccountName": {
+      "value": "sfvmsfcluster4407"
+    },
+    "dnsName": {
+      "value": "sfcluster"
+    },
+    "virtualNetworkName": {
+      "value": "VNet-sfcluster"
+    },
+    "lbName": {
+      "value": "LB-sfcluster"
+    },
+    "lbIPName": {
+      "value": "LBIP-sfcluster"
+    },
+    "applicationDiagnosticsStorageAccountName": {
+      "value": "sfdgsfcluster8609"
+    },
+    "supportLogStorageAccountName": {
+      "value": "sflogssfcluster5860"
+    },
+    "NodeType0ephemeralStartPort": {
+      "value": 49152
+    },
+    "NodeType0ephemeralEndPort": {
+      "value": 65534
+    },
+    "NodeType0applicationStartPort": {
+      "value": 20000
+    },
+    "NodeType0applicationEndPort": {
+      "value": 30000
+    },
+    "NodeType0fabricTcpGatewayPort": {
+      "value": 19000
+    },
+    "NodeType0fabricHttpGatewayPort": {
+      "value": 19080
     }
+  }
 }

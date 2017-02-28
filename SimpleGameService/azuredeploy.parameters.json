@@ -8,14 +8,14 @@
         "administratorLogin": {
             "value": "gameservice"
         },
-        "administratorLoginPassword": {
-            "value": null
-        },
+      "administratorLoginPassword": {
+        "value": "MyP@s52020!!!"
+      },
         "databaseUsername": {
             "value": "gameservice"
         },
         "databasePassword": {
-            "value": null
+            "value": "MyP@s52020!!!"
         },
         "databaseName": {
             "value": "GameServiceDB"
@@ -58,9 +58,6 @@
         },
         "skuCode": {
             "value": "S1"
-        },
-        "subscriptionId": {
-            "value": "YOUR Subscription ID"
         }
     }
 }
