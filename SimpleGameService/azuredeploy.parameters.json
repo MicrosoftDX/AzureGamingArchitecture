@@ -1,52 +1,15 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
-    "SqlServerName": {
-      "value": "gamesrvSqlserver"
-    },
-    "SqlAdministratorLogin": {
-      "value": "gameservice"
-    },
-    "SqlAdministratorLoginPassword": {
-      "value": "MyP@s52020!!!"
-    },
-    "databaseUsername": {
-      "value": "gameservice"
-    },
-    "databasePassword": {
-      "value": "MyP@s52020!!!"
-    },
-    "databaseName": {
-      "value": "GameServiceDB"
-    },
-    "SqlEdition": {
-      "value": "Standard"
-    },
-    "SqlCollation": {
-      "value": "SQL_Latin1_General_CP1_CI_AS"
-    },
-    "DBmaxSizeBytes": {
-      "value": "268435456000"
-    },
-    "SqlRequestedServiceObjectiveId": {
-      "value": "f1173c43-91bd-4aaa-973c-54e79e15235b"
-    },
-
     "WebSiteName": {
       "value": "gameservicegdc"
     },
-    "hostingPlanName": {
-      "value": "GameServicePlan"
+    "adminUsername": {
+      "value": "gameservice"
     },
-    "hostingPlanSku": {
-      "value": "Standard"
-    },
-    "hostingPlanSkuCode": {
-      "value": "S1"
-    },
-    "workerSizeID": {
-      "value": "0"
+    "adminPassword": {
+      "value": "MyP@s52020!!!"
     }
   }
 }

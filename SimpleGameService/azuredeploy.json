@@ -1,158 +1,137 @@
 {
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
-    "SqlServerName": {
-      "type": "string"
-    },
-    "SqlAdministratorLogin": {
-      "type": "string"
-    },
-    "SqlAdministratorLoginPassword": {
-      "type": "securestring"
-    },
-    "databaseUsername": {
-      "type": "string"
-    },
-    "databasePassword": {
-      "type": "securestring"
-    },
-    "databaseName": {
-      "type": "string"
-    },
-    "SqlEdition": {
-      "type": "string",
-      "defaultValue": "Standard"
-    },
-    "SqlCollation": {
-      "type": "string",
-      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
-    },
-    "DBmaxSizeBytes": {
-      "type": "string",
-      "defaultValue": "268435456000"
-    },
-    "SqlRequestedServiceObjectiveId": {
-      "type": "string",
-      "defaultValue": "f1173c43-91bd-4aaa-973c-54e79e15235b"
-    },
     "WebSiteName": {
-      "type": "string"
-    },
-    "hostingPlanName": {
-      "type": "string"
-    },
-    "hostingPlanSku": {
       "type": "string",
-      "defaultValue": "Standard"
+      "metadata": {"description": "Specify the prefix of the web site to deploy to"}
     },
-    "hostingPlanSkuCode": {
+    "adminUsername":{
       "type": "string",
-      "defaultValue": "S1"
+      "metadata": {"description": "Specify the admin user name for the database"}
     },
-    "workerSizeID": {
-      "type": "string",
-      "defaultValue": "0"
+    "adminPassword":{
+      "type": "securestring",
+      "metadata": {"description": "Specify the admin password for the database"}
     }
   },
-    "resources": [
-      {
-        "name": "[parameters('WebSiteName')]",
-        "type": "Microsoft.Web/sites",
-        "properties": {
-          "siteConfig": {
-            "connectionStrings": [
-              {
-                "name": "defaultConnection",
-                "ConnectionString": "[concat('Data Source=tcp:' , reference(concat('Microsoft.SQL/servers/',toLower(parameters('SqlServerName')))).fullyQualifiedDomainName , ',1433;Initial Catalog=GameServiceDB;User Id=gameservice@',reference(concat('Microsoft.SQL/servers/',toLower(parameters('SqlServerName')))).fullyQualifiedDomainName,';Password=',parameters('SqlAdministratorLoginPassword'),';')]",
-                "type": "SQLAzure"
-              }
-            ]
-          },
-          "name": "[parameters('WebSiteName')]",
-          "serverFarmId": [ "concat('Microsoft.Web/serverfarms/'", "parameters('hostingPlanName'))" ],
-          "hostingEnvironment": ""
-        },
-        "apiVersion": "2016-03-01",
-        "location": "[resourceGroup().location]",
-
-        "dependsOn": [
-          "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
-        ]
-      },
-      {
-        "apiVersion": "2016-09-01",
-        "name": "[parameters('hostingPlanName')]",
-        "type": "Microsoft.Web/ServerFarms",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "name": "[parameters('hostingPlanName')]",
-          "workerSizeId": "[parameters('workerSizeID')]",
-          "reserved": false,
-          "numberOfWorkers": "1",
-          "hostingEnvironment": ""
-        },
-        "sku": {
-          "Tier": "[parameters('hostingPlanSku')]",
-          "Name": "[parameters('hostingPlanSkuCode')]"
-        }
-      },
-        {
-            "apiVersion": "2014-04-01",
-            "name": "[concat(parameters('WebSiteName'),'Insights')]",
-            "type": "microsoft.insights/components",
-            "location": "West Europe",
-          "dependsOn": [
-            "[concat('Microsoft.Web/sites/', parameters('WebSiteName'))]"
-          ],
-          "tags": {
-            "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('WebSiteName'))]": "Resource"
-          },
-          "properties": {
-            "ApplicationId": "[parameters('WebSiteName')]",
-            "Request_Source": "IbizaWebAppExtensionCreate"
-          }
-        },
-      {
-        "name": "[toLower(parameters('SqlServerName'))]",
-        "type": "Microsoft.Sql/servers",
-        "location": "[resourceGroup().location]",
-        "apiVersion": "2014-04-01-preview",
-        "properties": {
-          "administratorLogin": "[parameters('SqlAdministratorLogin')]",
-          "administratorLoginPassword": "[parameters('SqlAdministratorLoginPassword')]",
-          "version": "12.0"
-        },
-        "resources": [
-          {
-            "name": "[parameters('databaseName')]",
-            "type": "databases",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2014-04-01-preview",
-            "dependsOn": [
-              "[concat('Microsoft.Sql/servers/', toLower(parameters('SqlServerName')))]"
-            ],
-            "properties": {
-              "edition": "[parameters('Sqledition')]",
-              "collation": "[parameters('Sqlcollation')]",
-              "maxSizeBytes": "[parameters('DBmaxSizeBytes')]",
-              "requestedServiceObjectiveId": "[parameters('SqlRequestedServiceObjectiveId')]"
+  "variables": {
+    "SqlServerName": "[concat(parameters('WebSiteName'),'dbsrv')]",
+    "SqlAdministratorLogin": "[parameters('adminUsername')]",
+    "SqlAdministratorLoginPassword": "[parameters('adminPassword')]",
+    "databaseUsername": "[parameters('adminUsername')]",
+    "databasePassword": "[parameters('adminPassword')]",
+    "databaseName": "[concat(parameters('WebSiteName'),'db')]",
+    "SqlEdition": "Standard",
+    "SqlCollation": "SQL_Latin1_General_CP1_CI_AS",
+    "DBmaxSizeBytes": "268435456000",
+    "SqlRequestedServiceObjectiveId": "f1173c43-91bd-4aaa-973c-54e79e15235b",
+    "hostingPlanName": "[concat(parameters('WebSiteName'),'farm')]",
+    "hostingEnvironment": "",
+    "hostingPlanSku": "Standard",
+    "hostingPlanSkuCode": "S1",
+    "workerSizeID":  "0"
+  },
+  "resources": [
+    {
+      "name": "[parameters('WebSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "properties": {
+        "siteConfig": {
+          "connectionStrings": [
+            {
+              "name": "defaultConnection",
+              "ConnectionString": "[concat('Data Source=tcp:' , reference(concat('Microsoft.SQL/servers/',variables('SqlServerName'))).fullyQualifiedDomainName , ',1433;Initial Catalog=GameServiceDB;User Id=gameservice@',reference(concat('Microsoft.SQL/servers/',variables('SqlServerName'))).fullyQualifiedDomainName,';Password=',variables('SqlAdministratorLoginPassword'),';')]",
+              "type": "SQLAzure"
             }
-          },
-          {
-            "apiVersion": "2014-04-01-preview",
-            "dependsOn": [
-              "[concat('Microsoft.Sql/servers/', toLower(parameters('SqlServerName')))]"
-            ],
-            "location": "[resourceGroup().location]",
-            "name": "AllowAllWindowsAzureIps",
-            "properties": {
-              "endIpAddress": "0.0.0.0",
-              "startIpAddress": "0.0.0.0"
-            },
-            "type": "firewallrules"
-          }
-        ]
+          ]
+        },
+        "name": "[parameters('WebSiteName')]",
+        "serverFarmId": [
+          "concat('Microsoft.Web/serverfarms/'",
+          "parameters('hostingPlanName'))"
+        ],
+        "hostingEnvironment": "[variables('hostingEnvironment')]"
+      },
+      "apiVersion": "2016-03-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "name": "[variables('hostingPlanName')]",
+      "type": "Microsoft.Web/ServerFarms",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "name": "[variables('hostingPlanName')]",
+        "workerSizeId": "[variables('workerSizeID')]",
+        "reserved": false,
+        "numberOfWorkers": "1",
+        "hostingEnvironment": "[variables('hostingEnvironment')]"
+      },
+      "sku": {
+        "Tier": "[variables('hostingPlanSku')]",
+        "Name": "[variables('hostingPlanSkuCode')]"
       }
-    ],
-    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0"
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('WebSiteName'),'Insights')]",
+      "type": "microsoft.insights/components",
+      "location": "West Europe",
+      "dependsOn": [
+        "[concat('Microsoft.Web/sites/', parameters('WebSiteName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', parameters('WebSiteName'))]": "Resource"
+      },
+      "properties": {
+        "ApplicationId": "[parameters('WebSiteName')]",
+        "Request_Source": "IbizaWebAppExtensionCreate"
+      }
+    },
+    {
+      "name": "[variables('SqlServerName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01-preview",
+      "properties": {
+        "administratorLogin": "[variables('SqlAdministratorLogin')]",
+        "administratorLoginPassword": "[variables('SqlAdministratorLoginPassword')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "[variables('databaseName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('SqlServerName'))]"
+          ],
+          "properties": {
+            "edition": "[variables('Sqledition')]",
+            "collation": "[variables('Sqlcollation')]",
+            "maxSizeBytes": "[variables('DBmaxSizeBytes')]",
+            "requestedServiceObjectiveId": "[variables('SqlRequestedServiceObjectiveId')]"
+          }
+        },
+        {
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('SqlServerName'))]"
+          ],
+          "location": "[resourceGroup().location]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          },
+          "type": "firewallrules"
+        }
+      ]
+    }
+  ]
 }
