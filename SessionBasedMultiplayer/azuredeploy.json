@@ -12,7 +12,7 @@
     "MasterInstanceCount": {
       "type": "int",
       "metadata": {
-        "description": "Number of VM instances in the Master VMSS (100 or less)."
+        "description": "Number of VM instances in the Master VMSS (1000 or less)."
       },
       "defaultValue": 2,
       "maxValue": 100
@@ -20,7 +20,7 @@
     "GameInstanceCount": {
       "type": "int",
       "metadata": {
-        "description": "Number of VM instances in the Game VMSS (100 or less)."
+        "description": "Number of VM instances in the Game VMSS (1000 or less)."
       },
       "defaultValue": 2,
       "maxValue": 100
