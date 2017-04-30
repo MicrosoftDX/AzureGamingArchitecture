@@ -1,6 +1,6 @@
 # Session Based Multiplayer
 
-![Architecture Session based Multiplayer](../Images/Architecture 3 – Session Based Multiplayer.jpg)
+![Architecture Session based Multiplayer](../Images/Architecture%203%20%E2%80%93%20Session%20Based%20Multiplayer.jpg)
 
 
 The ARM template to deploy this architecture in Azure includes the following components:
