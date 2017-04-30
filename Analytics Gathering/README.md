@@ -1,6 +1,6 @@
 # Analytics Gathering
 
-![Architecture Session based Multiplayer](../Images/Architecture 4 – Analytics Gathering.jpg)
+![Architecture Session based Multiplayer](../Images/Architecture%204%20%E2%80%93%20Analytics%20Gathering.jpg)
 
 
 The ARM template to deploy this architecture in Azure includes the following components:
