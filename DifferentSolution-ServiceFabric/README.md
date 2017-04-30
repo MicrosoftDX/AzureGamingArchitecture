@@ -1,6 +1,6 @@
 # Different Solution (Service Fabric)
 
-![Architecture Session based Multiplayer](../Images/Architecture 2 – Different Solution.jpg)
+![Architecture Session based Multiplayer](../Images/Architecture%202%20%E2%80%93%20Different%20Solution.jpg)
 
 
 The ARM template to deploy this architecture in Azure includes the following components:
