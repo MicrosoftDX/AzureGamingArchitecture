@@ -1,6 +1,6 @@
 # Simple Game Service
 
-![Architecture Session based Multiplayer](../Images/Architecture 1 - Simple Game Service.jpg)
+![Architecture Session based Multiplayer](../Images/Architecture%201%20-%20Simple%20Game%20Service.jpg)
 
 
 The ARM template to deploy this architecture in Azure includes the following components:
